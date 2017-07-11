@@ -1,8 +1,8 @@
 package com.n26.stats;
 
-import com.n26.stats.models.TransactionDto;
+import com.n26.stats.models.TransactionDTO;
 import com.n26.stats.repository.TransactionRepository;
-import com.n26.stats.routes.ApiRoutes;
+import com.n26.stats.repository.TransactionRepositoryV2;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,19 +28,24 @@ public class StatsApplicationTests {
     @Resource
     private TransactionRepository transactionRepository;
 
+    @Resource
+    private TransactionRepositoryV2 transactionRepositoryV2;
+
 
     @Test
     public void contextLoads() {
     }
 
+
     @Test
     public void generateAndGetStats() {
         Thread producer = new Thread(() -> IntStream.range(1, 50).parallel().forEach(i -> {
-            TransactionDto tx = new TransactionDto();
+            TransactionDTO tx = new TransactionDTO();
             tx.setAmount(BigDecimal.valueOf(current().nextDouble(1, 100)));
             tx.setTimestamp(ZonedDateTime.now(ZoneId.of("UTC")));
             transactionRepository.add(tx);
-            LOG.info("Transaction " + i + " is " + ZonedDateTime.now(tx.getTimestamp().getZone()).toString()
+            transactionRepositoryV2.add(tx);
+            LOG.debug("Transaction " + i + " is " + ZonedDateTime.now(tx.getTimestamp().getZone()).toString()
                     + " recorded at " + tx.getTimestamp());
             try {
                 Thread.sleep(current().nextInt(20) * 1000);
@@ -48,16 +53,21 @@ public class StatsApplicationTests {
                 LOG.error("concurrent exception", e);
             }
         }));
-        Thread statistics = new Thread(() -> {
 
-            try {
-                Thread.sleep(20000);
-            } catch (InterruptedException e) {
-                LOG.error("concurrent exception", e);
+
+        Thread statistics = new Thread(() -> {
+            while (producer.isAlive()) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    LOG.error("concurrent exception", e);
+                }
+                Map<String, BigDecimal> stats = transactionRepository.getStats();
+                Map<String, BigDecimal> stats2 = transactionRepositoryV2.getStats();
+                LOG.info("Statistics at " + stats.toString());
+                LOG.info("Statistics at " + stats2.toString());
+                Assert.assertTrue(stats.get("count").compareTo(BigDecimal.ZERO) > 0);
             }
-            Map<String, BigDecimal> stats = transactionRepository.getStats();
-            LOG.info("Statistics at "+stats.toString());
-            Assert.assertTrue(stats.get("count").compareTo(BigDecimal.ZERO) > 0);
         });
         producer.start();
         statistics.start();

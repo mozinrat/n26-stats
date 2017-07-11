@@ -1,6 +1,6 @@
 package com.n26.stats.routes;
 
-import com.n26.stats.models.TransactionDto;
+import com.n26.stats.models.TransactionDTO;
 import com.n26.stats.repository.TransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class ApiRoutes {
     private TransactionRepository transactionRepository;
 
     @PostMapping("/transactions")
-    public void transact(@RequestBody @Valid TransactionDto transaction) {
+    public void transact(@RequestBody @Valid TransactionDTO transaction) {
         transactionRepository.add(transaction);
         LOG.info("Transaction is valid current is " + ZonedDateTime.now(transaction.getTimestamp().getZone()).toString()
                 + " recorded at " + transaction.getTimestamp());

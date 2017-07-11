@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 /**
  * Created by payal on 7/8/17.
  */
-public class TransactionDto {
+public class TransactionDTO {
 
     private BigDecimal amount;
 
