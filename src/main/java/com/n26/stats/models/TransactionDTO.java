@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 /**
- * Created by payal on 7/8/17.
+ * Created by rohit on 7/8/17.
  */
 public class TransactionDTO {
 
@@ -22,6 +22,7 @@ public class TransactionDTO {
     @NotNull(message = "timestamp should not be null")
     @Past(message = "timestamp should not be future")
     @Recent(timeFromNowInSeconds = 60,message = "timestamp should not be less than 60 seconds from now")
+    // taking in account that this is financial data, we may need to manage timezone which is not possible if we receive time in millis/long
     private ZonedDateTime timestamp;
 
     public BigDecimal getAmount() {
