@@ -47,8 +47,8 @@ public class TransactionRepositoryV2 {
         sm.put("avg", queue.size() == 0 ? BigDecimal.ZERO :
                 sum.get().divide(BigDecimal.valueOf(queue.size()), 2, BigDecimal.ROUND_HALF_UP));
         sm.put("count", BigDecimal.valueOf(queue.size()));
-        sm.put("max", queue.min().getAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
-        sm.put("min", queue.max().getAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
+        sm.put("max", queue.max().getAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
+        sm.put("min", queue.min().getAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
         return sm;
     }
 

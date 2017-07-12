@@ -3,6 +3,7 @@ package com.n26.stats.ds;
 import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -15,18 +16,31 @@ public class MinMaxQueue<T> extends ConcurrentLinkedQueue<T> {
     private Comparator<T> comparator;
 
     public MinMaxQueue(Comparator<T> comparator) {
-        maxValuesQueue = new ArrayDeque<>();
-        minValuesQueue = new ArrayDeque<>();
+        maxValuesQueue = new ConcurrentLinkedDeque<>();
+        minValuesQueue = new ConcurrentLinkedDeque<>();
         this.comparator = comparator;
     }
 
     public boolean add(T e) {
         if (super.add(e)) {
-            while (maxValuesQueue.size()>0 && comparator.compare(max(),e)<0) maxValuesQueue.pollLast();
-            maxValuesQueue.addLast(e);
+            if (!minValuesQueue.isEmpty()  && comparator.compare(min(), e) < 0) {
+                // place element in sorted position in queue
+                while (comparator.compare(minValuesQueue.peekLast(), e) > 0) minValuesQueue.pollLast() ;
+                minValuesQueue.addLast(e);
+            } else {
+                minValuesQueue.clear();
+                minValuesQueue.add(e);
+            }
 
-            while (minValuesQueue.size()>0 && comparator.compare(min(),e)>0) minValuesQueue.pollLast();
-            minValuesQueue.addLast(e);
+            if (!maxValuesQueue.isEmpty() && comparator.compare(max(), e) > 0) {
+                // place element in sorted position in queue
+                while (comparator.compare(maxValuesQueue.peekLast(), e) < 0) maxValuesQueue.pollLast();
+                maxValuesQueue.addLast(e);
+            } else {
+                maxValuesQueue.clear();
+                maxValuesQueue.add(e);
+            }
+
             return true;
         }
         return false;
@@ -47,11 +61,11 @@ public class MinMaxQueue<T> extends ConcurrentLinkedQueue<T> {
     }
 
     public T min() {
-        return minValuesQueue.peekLast();
+        return minValuesQueue.peekFirst();
     }
 
     public T max() {
-        return maxValuesQueue.peekLast();
+        return maxValuesQueue.peekFirst();
     }
 
 }

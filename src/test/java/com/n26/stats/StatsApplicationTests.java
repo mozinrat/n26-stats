@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -34,6 +35,15 @@ public class StatsApplicationTests {
 
     @Test
     public void contextLoads() {
+        Arrays.stream(new int[]{2,3,4,1,2,5,6,7,7,8}).forEach(i -> {
+            TransactionDTO tx = new TransactionDTO();
+            tx.setAmount(BigDecimal.valueOf(i));
+            tx.setTimestamp(ZonedDateTime.now(ZoneId.of("UTC")));
+            transactionRepositoryV2.add(tx);
+            LOG.debug("Transaction " + i + " is " + ZonedDateTime.now(tx.getTimestamp().getZone()).toString()
+                    + " recorded at " + tx.getTimestamp());
+        });
+        LOG.info(transactionRepositoryV2.getStats().toString());
     }
 
 

@@ -2,6 +2,7 @@ package com.n26.stats.routes;
 
 import com.n26.stats.models.TransactionDTO;
 import com.n26.stats.repository.TransactionRepository;
+import com.n26.stats.repository.TransactionRepositoryV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class ApiRoutes {
     private static final Logger LOG = LoggerFactory.getLogger(ApiRoutes.class);
 
     @Resource
-    private TransactionRepository transactionRepository;
+    private TransactionRepositoryV2 transactionRepository;
 
     @PostMapping("/transactions")
     public void transact(@RequestBody @Valid TransactionDTO transaction) {
